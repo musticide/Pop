@@ -29,7 +29,7 @@ public class Bubble : MonoBehaviour
         GameManager.Instance.AddScore();
     }
 
-    void KillBubble()
+    public void KillBubble()
     {
         transform.position = bubblePool.transform.position;
         bubblePool.ReturnObject(gameObject);
