@@ -14,21 +14,23 @@ public class BubblePool : MonoBehaviour
         for (int i = 0; i < poolSize; i++)
         {
             GameObject obj = Instantiate(bubblePrefab, this.transform);
-            // obj.SetActive(false);
+            obj.SetActive(false);
             pool.Enqueue(obj);
         }
     }
 
-    public GameObject GetObject()
+    public GameObject GetBubble()
     {
         if (pool.Count > 0)
         {
             GameObject obj = pool.Dequeue();
+            Debug.Log("Object dequeued");
             obj.SetActive(true);
             return obj;
         }
         else
         {
+            Debug.LogWarning("Bubble Instantiated! Pool size not enough");
             GameObject obj = Instantiate(bubblePrefab);
             obj.SetActive(true);
             return obj;
