@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -6,7 +8,8 @@ public class GameManager : MonoBehaviour
     private int lives = 3;
     private int score = 0;
 
-    public UIManager uiManager;
+    [SerializeField] private UIManager uiManager;
+    [SerializeField] private SceneManager sceneManager;
 
     void Awake()
     {
@@ -23,6 +26,16 @@ public class GameManager : MonoBehaviour
         //init UI
         uiManager.SetLifeText(lives);
         uiManager.SetScoreText(score);
+
+        uiManager.startButton.onClick.AddListener(StartGame);
+
+    }
+
+    private void StartGame()
+    {
+        Debug.Log("Game Started!");
+        uiManager.ShowGameUI();
+        sceneManager.LoadGamePrefab();
     }
 
     public void LoseLife()

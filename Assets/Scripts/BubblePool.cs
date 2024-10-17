@@ -19,12 +19,13 @@ public class BubblePool : MonoBehaviour
         }
     }
 
-    public GameObject GetBubble()
+    public GameObject GetBubble(Vector3 pos)
     {
         if (pool.Count > 0)
         {
             GameObject obj = pool.Dequeue();
             Debug.Log("Object dequeued");
+            obj.transform.position = pos;
             obj.SetActive(true);
             return obj;
         }
@@ -32,6 +33,7 @@ public class BubblePool : MonoBehaviour
         {
             Debug.LogWarning("Bubble Instantiated! Pool size not enough");
             GameObject obj = Instantiate(bubblePrefab);
+            obj.transform.position = pos;
             obj.SetActive(true);
             return obj;
         }

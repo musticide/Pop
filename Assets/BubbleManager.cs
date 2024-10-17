@@ -8,8 +8,9 @@ public class BubbleManager : MonoBehaviour
     float spawnInterval = 0;
     BubblePool bubblePool;
 
-    private void Start() {
-       bubblePool = GetComponent<BubblePool>(); 
+    private void Start()
+    {
+        bubblePool = GetComponent<BubblePool>();
     }
     private void Update()
     {
@@ -24,6 +25,14 @@ public class BubbleManager : MonoBehaviour
 
     void SpawnBubble()
     {
-        bubblePool.GetBubble();
+        bubblePool.GetBubble(GetSpawnPos());
+    }
+
+    Vector3 GetSpawnPos()
+    {
+        Vector3 randPos = new Vector3(0, -10, 0);
+        randPos.x = Random.Range(-2.5f, 2.5f);
+        return randPos;
+
     }
 }
