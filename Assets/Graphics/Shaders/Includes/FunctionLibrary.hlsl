@@ -1,4 +1,5 @@
 half Raymarch(half3 ro, half3 rd, int maxSteps, half surfaceDist, half maxDist){
+    half4 retVal = 0;
     half dO = 0;
     half dS;
     for(int i = 0; i < maxSteps; i++){
@@ -9,8 +10,13 @@ half Raymarch(half3 ro, half3 rd, int maxSteps, half surfaceDist, half maxDist){
         // #endif
         dS = SDFFunction(p);
         dO += dS;
-        if (dS< surfaceDist || dO > maxDist) break;
+
+        if (dS< surfaceDist || dO > maxDist) {
+            retVal.xyz += p;
+            break;
+        }
     }
+    retVal.w = dO;
     return dO;
 }
 

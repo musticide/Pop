@@ -7,7 +7,8 @@ public class SceneManager : MonoBehaviour
     [SerializeField] GameObject gameScene;
     public void LoadGamePrefab()
     {
-        Instantiate(gameScene);
+        // Instantiate(gameScene);
+        gameScene.SetActive(true);
     }
 
 }

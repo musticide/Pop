@@ -24,7 +24,6 @@ Shader "Pop/Bubble Shader"
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
-            #include "Assets/Graphics/Shaders/Includes/FunctionLibrary.hlsl"
 
             #pragma multi_compile_instancing
 
@@ -57,7 +56,11 @@ Shader "Pop/Bubble Shader"
 
             float4 frag(v2f i) : SV_Target
             {
+                float4 finalCol = 0;
+                finalCol.a = 1;
                 float3 normalWS = normalize(i.normalWS);
+                // finalCol.rgb = normalWS;
+                // return finalCol;
                 float3 viewDirWS = normalize(i.viewDirWS);
 
                 // Calculate the Fresnel effect using Schlick's approximation
