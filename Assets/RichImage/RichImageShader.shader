@@ -2,16 +2,17 @@ Shader "Hidden/musticide/UI/RichImageShader"
 {
     Properties
     {
-        [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
+        [PerRendererData]_MainTex ("Sprite Texture", 2D) = "white" {}
+        [PerRendererData]_SecTex ("Sprite Texture 2", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
 
-        _StencilComp ("Stencil Comparison", Float) = 8
-        _Stencil ("Stencil ID", Float) = 0
-        _StencilOp ("Stencil Operation", Float) = 0
-        _StencilWriteMask ("Stencil Write Mask", Float) = 255
-        _StencilReadMask ("Stencil Read Mask", Float) = 255
+        [HideInInspector]_StencilComp ("Stencil Comparison", Float) = 8
+        [HideInInspector]_Stencil ("Stencil ID", Float) = 0
+        [HideInInspector]_StencilOp ("Stencil Operation", Float) = 0
+        [HideInInspector]_StencilWriteMask ("Stencil Write Mask", Float) = 255
+        [HideInInspector]_StencilReadMask ("Stencil Read Mask", Float) = 255
 
-        _ColorMask ("Color Mask", Float) = 15
+        [HideInInspector]_ColorMask ("Color Mask", Float) = 15
 
         [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
     }
@@ -99,15 +100,17 @@ Shader "Hidden/musticide/UI/RichImageShader"
                 half4 fnl = half4(0,0,0,1);
                 fnl.rg = IN.texcoord;
 
-                half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
+                // half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
+                half4 color = tex2D(_MainTex, IN.texcoord);// + _TextureSampleAdd) * IN.color;
 
-                #ifdef UNITY_UI_CLIP_RECT
-                color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
-                #endif
+                // #ifdef UNITY_UI_CLIP_RECT
+                // color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
+                // #endif
+                fnl = color;
 
-                #ifdef UNITY_UI_ALPHACLIP
-                clip (color.a - 0.001);
-                #endif
+                // #ifdef UNITY_UI_ALPHACLIP
+                // clip (color.a - 0.001);
+                // #endif
 
                 return fnl;
             }
