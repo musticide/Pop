@@ -55,6 +55,7 @@ public class RichImage : UnityEngine.UI.Image
 
     private void OnMainSpriteChanged(Sprite a_MainSprite)
     {
+        if (a_MainSprite == null) return;
         material.SetTexture("_MainTex", a_MainSprite.texture);
         Rect texRect = a_MainSprite.textureRect;
         Vector2 offset = new Vector2(texRect.x / a_MainSprite.texture.width, texRect.y / a_MainSprite.texture.height);
@@ -66,6 +67,7 @@ public class RichImage : UnityEngine.UI.Image
 
     private void OnSecondarySpriteChanged(Sprite a_SecondarySprite)
     {
+        if (a_SecondarySprite == null) return;
         material.SetTexture("_SecTex", a_SecondarySprite.texture);
         Rect texRect = a_SecondarySprite.textureRect;
         Vector2 offset = new Vector2(texRect.x / a_SecondarySprite.texture.width, texRect.y / a_SecondarySprite.texture.height);

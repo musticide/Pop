@@ -133,11 +133,11 @@ Shader "Hidden/musticide/UI/RichImageShader"
                 #ifdef _TEXBLENDMODE_ALPHA
                 mixTex = mixTex;
                 #elif _TEXBLENDMODE_ADD
-                mixTex.rgb = lerp(mainTex.rgb, mainTex.rgb + secTex.rgb, secTex.a);
+                mixTex.rgb = lerp(mixTex.rgb, mainTex.rgb + secTex.rgb, mainTex.a * secTex.a);
                 #elif _TEXBLENDMODE_MULTIPLY
-                mixTex.rgb = lerp(mainTex.rgb, mainTex.rgb * secTex.rgb, secTex.a);
+                mixTex.rgb = lerp(mixTex.rgb, mainTex.rgb * secTex.rgb, mainTex.a * secTex.a);
                 #elif _TEXBLENDMODE_OVERLAY
-                mixTex.rgb = lerp(mainTex, Overlay(mainTex.rgb, secTex.rgb), secTex.a);//using the lerped alpha here
+                mixTex.rgb = lerp(mixTex, Overlay(mainTex.rgb, secTex.rgb), mainTex.a * secTex.a);//using the lerped alpha here
                 #endif
 
                 fnl = mixTex;

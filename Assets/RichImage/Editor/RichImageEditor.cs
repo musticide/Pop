@@ -39,8 +39,10 @@ public class RichImageEditor : UnityEditor.Editor
         serializedObject.Update();
 
         EditorGUILayout.PropertyField(m_MainSprite);
+
         EditorGUILayout.PropertyField(m_SecondarySprite);
         EditorGUILayout.PropertyField(m_TexBlendMode);
+
         EditorGUILayout.PropertyField(m_CustomMesh);
         EditorGUILayout.PropertyField(m_Color);
         // EditorGUILayout.PropertyField(m_Type);
