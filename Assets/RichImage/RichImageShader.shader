@@ -3,8 +3,11 @@ Shader "Hidden/musticide/UI/RichImageShader"
     Properties
     {
         [PerRendererData]_MainTex ("Sprite Texture", 2D) = "white" {}
-        [PerRendererData]_SecTex ("Sprite Texture 2", 2D) = "white" {}
+        [PerRendererData]_SecTex ("Sprite Texture 2", 2D) = "black" {}
         _Color ("Tint", Color) = (1,1,1,1)
+
+        // _TexBlendMode ("Texture Blend", Float) = 0
+        [KeywordEnum(Alpha, Add, Multiply, Overlay)] _TexBlendMode ("Blend Mode Test", Float) = 0
 
         [HideInInspector]_StencilComp ("Stencil Comparison", Float) = 8
         [HideInInspector]_Stencil ("Stencil ID", Float) = 0
@@ -58,59 +61,95 @@ Shader "Hidden/musticide/UI/RichImageShader"
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 
-            struct appdata_t
+            #pragma shader_feature_fragment _TEXBLENDMODE_ALPHA _TEXBLENDMODE_ADD _TEXBLENDMODE_MULTIPLY _TEXBLENDMODE_OVERLAY
+
+            struct Attributes
             {
-                float4 vertex   : POSITION;
+                float4 positionOS   : POSITION;
                 float4 color    : COLOR;
-                float2 texcoord : TEXCOORD0;
+                float2 uv : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f
+            struct Varyings
             {
-                float4 vertex   : SV_POSITION;
+                float4 positionCS   : SV_POSITION;
                 fixed4 color    : COLOR;
-                float2 texcoord  : TEXCOORD0;
-                float4 worldPosition : TEXCOORD1;
+                float2 uv  : TEXCOORD0;
+                float2 uv1 : VAR_MAINTEX_UV;
+                float2 uv2 : VAR_SECTEX_UV;
+                float4 positionWS : TEXCOORD1;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
             sampler2D _MainTex;
+            float4 _MainTex_ST;
+            sampler2D _SecTex;
+            float4 _SecTex_ST;
             fixed4 _Color;
             fixed4 _TextureSampleAdd;
             float4 _ClipRect;
-            float4 _MainTex_ST;
 
-            v2f vert(appdata_t v)
+            half3 Luminance(float4 color)
             {
-                v2f OUT;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
-                OUT.worldPosition = v.vertex;
-                OUT.vertex = UnityObjectToClipPos(OUT.worldPosition);
-
-                OUT.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
-
-                OUT.color = v.color * _Color;
-                return OUT;
+                return dot(color.rgb, half3(0.299, 0.587, 0.114));
+            }
+            half3 Overlay(half3 a, half3 b)
+            {
+            return Luminance(a) > 0.5?
+                1 - (1-a) * (1-b):
+                2 * a * b;
             }
 
-            fixed4 frag(v2f IN) : SV_Target
+            Varyings vert(Attributes input)
+            {
+                Varyings o;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.positionWS = input.positionOS;
+                o.positionCS = UnityObjectToClipPos(o.positionWS);
+
+                o.uv = input.uv;
+                o.uv1 = TRANSFORM_TEX(input.uv, _MainTex);
+                o.uv2 = TRANSFORM_TEX(input.uv, _SecTex);
+
+                o.color = input.color * _Color;
+                return o;
+            }
+
+            fixed4 frag(Varyings input) : SV_Target
             {
                 half4 fnl = half4(0,0,0,1);
-                fnl.rg = IN.texcoord;
+                float2 uv = input.uv;
 
-                // half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
-                half4 color = tex2D(_MainTex, IN.texcoord);// + _TextureSampleAdd) * IN.color;
+                float2 mTexUV = input.uv1;
+                half4 mainTex = tex2D(_MainTex, mTexUV);
 
-                // #ifdef UNITY_UI_CLIP_RECT
-                // color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
-                // #endif
-                fnl = color;
+                float2 sTexUV = input.uv2;
+                half4 secTex = tex2D(_SecTex, sTexUV);
 
-                // #ifdef UNITY_UI_ALPHACLIP
-                // clip (color.a - 0.001);
-                // #endif
+                half4 mixTex = lerp(mainTex, secTex, secTex.a);//default
+
+                #ifdef _TEXBLENDMODE_ALPHA
+                mixTex = mixTex;
+                #elif _TEXBLENDMODE_ADD
+                mixTex.rgb = lerp(mainTex.rgb, mainTex.rgb + secTex.rgb, secTex.a);
+                #elif _TEXBLENDMODE_MULTIPLY
+                mixTex.rgb = lerp(mainTex.rgb, mainTex.rgb * secTex.rgb, secTex.a);
+                #elif _TEXBLENDMODE_OVERLAY
+                mixTex.rgb = lerp(mainTex, Overlay(mainTex.rgb, secTex.rgb), secTex.a);//using the lerped alpha here
+                #endif
+
+                fnl = mixTex;
+                fnl*= input.color;
+
+                #ifdef UNITY_UI_CLIP_RECT
+                fnl.a *= UnityGet2DClipping(input.positionWS.xy, _ClipRect);
+                #endif
+
+                #ifdef UNITY_UI_ALPHACLIP
+                clip (fnl.a - 0.001);
+                #endif
 
                 return fnl;
             }

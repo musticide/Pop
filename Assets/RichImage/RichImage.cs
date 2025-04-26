@@ -10,7 +10,7 @@ public class RichImage : UnityEngine.UI.Image
 
     [SerializeField] private Mesh m_CustomMesh;
 
-    private Mesh CustomMesh
+    public Mesh CustomMesh
     {
         get => m_CustomMesh;
         set
@@ -75,6 +75,58 @@ public class RichImage : UnityEngine.UI.Image
         material.SetTextureScale("_SecTex", scale);
     }
 
+    [System.Serializable]
+    public enum BlendMode
+    {
+        Alpha,
+        Additive,
+        Multiply,
+        Overlay
+    }
+
+    [SerializeField] private BlendMode m_TexBlendMode = BlendMode.Alpha;
+
+    public BlendMode texBlendMode
+    {
+        get => m_TexBlendMode;
+        set
+        {
+            m_TexBlendMode = value;
+            OnTexBlendModeChanged(value);
+        }
+    }
+
+    private void OnTexBlendModeChanged(BlendMode value)
+    {
+        switch (value)
+        {
+            case BlendMode.Alpha:
+                material.EnableKeyword("_TEXBLENDMODE_ALPHA");
+                material.DisableKeyword("_TEXBLENDMODE_ADD");
+                material.DisableKeyword("_TEXBLENDMODE_MULTIPLY");
+                material.DisableKeyword("_TEXBLENDMODE_OVERLAY");
+                break;
+            case BlendMode.Additive:
+                material.DisableKeyword("_TEXBLENDMODE_ALPHA");
+                material.EnableKeyword("_TEXBLENDMODE_ADD");
+                material.DisableKeyword("_TEXBLENDMODE_MULTIPLY");
+                material.DisableKeyword("_TEXBLENDMODE_OVERLAY");
+                break;
+            case BlendMode.Multiply:
+                material.DisableKeyword("_TEXBLENDMODE_ALPHA");
+                material.DisableKeyword("_TEXBLENDMODE_ADD");
+                material.EnableKeyword("_TEXBLENDMODE_MULTIPLY");
+                material.DisableKeyword("_TEXBLENDMODE_OVERLAY");
+                break;
+            case BlendMode.Overlay:
+                material.DisableKeyword("_TEXBLENDMODE_ALPHA");
+                material.DisableKeyword("_TEXBLENDMODE_ADD");
+                material.DisableKeyword("_TEXBLENDMODE_MULTIPLY");
+                material.EnableKeyword("_TEXBLENDMODE_OVERLAY");
+                break;
+        }
+    }
+
     protected override void OnPopulateMesh(VertexHelper vh)
     {
         vh.Clear();
@@ -126,7 +178,9 @@ public class RichImage : UnityEngine.UI.Image
         EnsureRichImageShader();
 
         // if (MainSprite != m_MainSprite)
-            OnMainSpriteChanged(m_MainSprite);
+        OnMainSpriteChanged(m_MainSprite);
+        OnSecondarySpriteChanged(m_SecondarySprite);
+        OnTexBlendModeChanged(m_TexBlendMode);
     }
 
 #if UNITY_EDITOR
@@ -137,15 +191,33 @@ public class RichImage : UnityEngine.UI.Image
     }
 #endif
 
+    Material shaderMaterial;// = new Material(Shader.Find("Hidden/musticide/UI/RichImageShader"));
+
     public override Material material
     {
-        get => base.material;
+        get
+        {
+            if (m_Material != null)
+            {
+                return m_Material;
+            }
+            else
+            {
+                // return new Material(m_RichImageShader);
+                return shaderMaterial;
+            }
+        }
         set
         {
-            if (value != null && value.shader == m_RichImageShader)
+            m_Material = value;
+            /* if (value != null)
             {
-                base.material = value;
+                m_Material = value;
             }
+            else
+            {
+                m_Material = new Material(m_RichImageShader);
+            } */
         }
     }
 
@@ -165,6 +237,26 @@ public class RichImage : UnityEngine.UI.Image
         }
     }
 
+    public void PreserveAspectRatio()
+    {
+        if (MainSprite != null)
+        {
+            Vector2 size = MainSprite.rect.size;
+            if (size.x >= size.y)
+            {
+                rectTransform.localScale = Vector3.one * rectTransform.localScale.x;
+                // rectTransform.localScale.y = (1 ,size.x /size.y, 1);
+            }
+            else
+            {
+                rectTransform.localScale = Vector3.one * rectTransform.localScale.x;
+                // rectTransform.localScale.y *= size.x /size.y;
+
+            }
+            // float aspectRatio = 
+        }
+    }
+
     void EnsureRichImageShader()
     {
         if (m_RichImageShader == null)
@@ -176,11 +268,15 @@ public class RichImage : UnityEngine.UI.Image
                 return;
             }
         }
-
-        if (material == null || material.shader != m_RichImageShader)
+        if (m_Material == null)
         {
-            material = new Material(m_RichImageShader);
+            shaderMaterial = new Material(m_RichImageShader);
         }
+
+        // if (material == null || material.shader != m_RichImageShader)
+        // {
+        //     material = new Material(m_RichImageShader);
+        // }
     }
 }
 
