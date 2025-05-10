@@ -7,7 +7,12 @@ Shader "Hidden/musticide/UI/RichImageShader"
         _Color ("Tint", Color) = (1,1,1,1)
 
         [HideInInspector]_TexBlendMode ("Texture Blend", Float) = 0
-        // [KeywordEnum(Alpha, Add, Multiply, Overlay)] _TexBlendMode ("Blend Mode Test", Float) = 0
+
+        // _Gleam("Gleam Width Angle Speed Space", Vector) = (0.2, 0.0, 0.5, 2.0)
+        // _GleamWidth ("Gleam Width", Float) = 0.5
+        // _GleamAngle ("Gleam Angle", Float) = 0.0
+        // _GleamSpeed ("Gleam Speed", Float) = 0.0
+        // _GleamSpace ("Gleam Space", Float) = 1.0
 
         [HideInInspector]_StencilComp ("Stencil Comparison", Float) = 8
         [HideInInspector]_Stencil ("Stencil ID", Float) = 0
@@ -63,7 +68,7 @@ Shader "Hidden/musticide/UI/RichImageShader"
 
             #pragma shader_feature_fragment _TEXBLENDMODE_ALPHA _TEXBLENDMODE_ADD _TEXBLENDMODE_MULTIPLY _TEXBLENDMODE_OVERLAY
             #pragma shader_feature _TILE_SECTEX
-            #pragma shader_feature _PRESERVE_SECTEX_ASPECT
+            #pragma shader_feature_fragment _GLEAM
 
             struct Attributes
             {
@@ -95,6 +100,8 @@ Shader "Hidden/musticide/UI/RichImageShader"
             fixed4 _TextureSampleAdd;
             float4 _ClipRect;
 
+            float4 _Gleam;
+
             half3 Luminance(float4 color)
             {
                 return dot(color.rgb, half3(0.299, 0.587, 0.114));
@@ -114,6 +121,18 @@ Shader "Hidden/musticide/UI/RichImageShader"
             float2 RemapRange(float2 val, float2 inMin, float2 inMax,float2 outMin,float2 outMax)
             {
                 return (val - inMin) / (inMax - inMin) * (outMax - outMin) + outMin;
+            }
+
+            float2 CustomRotator(float2 inUV, float2 center, float angle)
+            {
+                    if(angle <= 0 ) return inUV;
+                    inUV = (center * -1) * inUV;
+                    float2 outUV = 0;
+                    float sinAngle = sin(angle);
+                    float cosAngle = cos(angle);
+                    outUV.x = dot(inUV, float2(cosAngle, -sinAngle));
+                    outUV.y = dot(inUV, float2(sinAngle, cosAngle));
+                    return outUV;
             }
 
             Varyings vert(Attributes input)
@@ -183,6 +202,20 @@ Shader "Hidden/musticide/UI/RichImageShader"
 
                 fnl = mixTex;
                 fnl*= input.color;
+
+                //Gleam
+                // fnl.rgb = 0;
+
+                #ifdef _GLEAM
+                float2 gleamUV = input.uv;
+                gleamUV = CustomRotator(gleamUV, 0.5f, _Gleam.y);
+                gleamUV.x += _Time.y * _Gleam.z;
+                gleamUV.x = abs(gleamUV.x);
+                gleamUV.x = fmod(gleamUV.x, _Gleam.w);
+                float gleam = step(gleamUV.x, _Gleam.x);
+                fnl.rgb = lerp(fnl.rgb, Overlay(fnl.rgb, gleam), gleam);
+                #endif
+
 
                 #ifdef UNITY_UI_CLIP_RECT
                 fnl.a *= UnityGet2DClipping(input.positionWS.xy, _ClipRect);

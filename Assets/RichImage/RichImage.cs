@@ -129,7 +129,7 @@ public class RichImage : UnityEngine.UI.Image
 
     [SerializeField] private BlendMode m_TexBlendMode = BlendMode.Alpha;
 
-    public BlendMode texBlendMode
+    public BlendMode TexBlendMode
     {
         get => m_TexBlendMode;
         set
@@ -137,6 +137,45 @@ public class RichImage : UnityEngine.UI.Image
             m_TexBlendMode = value;
             OnTexBlendModeChanged(value);
         }
+    }
+
+    [SerializeField] bool m_IsGleam = false;
+    public bool IsGleam
+    {
+        get => m_IsGleam;
+        set
+        {
+            m_IsGleam = value;
+            OnGleamActivated(value);
+        }
+    }
+
+    private void OnGleamActivated(bool value)
+    {
+        if (value)
+        {
+            material.EnableKeyword("_GLEAM");
+        }
+        else
+        {
+            material.DisableKeyword("_GLEAM");
+        }
+    }
+
+    [SerializeField] Vector4 m_Gleam = new Vector4(0.2f, 0.0f, 0.5f, 2.0f);
+    public Vector4 Gleam
+    {
+        get => m_Gleam;
+        set
+        {
+            m_Gleam = value;
+            OnGleamChanged(value);
+        }
+    }
+
+    private void OnGleamChanged(Vector4 value)
+    {
+        material.SetVector("_Gleam", value);
     }
 
     private void OnTexBlendModeChanged(BlendMode value)
@@ -226,6 +265,9 @@ public class RichImage : UnityEngine.UI.Image
         OnTexBlendModeChanged(m_TexBlendMode);
         OnSecondarySpriteUserScaleOffsetChanged(m_SecondarySpriteUserScaleOffset);
         OnTileSecondarySpriteChanged(m_TileSecondarySprite);
+
+        OnGleamChanged(m_Gleam);
+        OnGleamActivated(m_IsGleam);
     }
 
 #if UNITY_EDITOR
