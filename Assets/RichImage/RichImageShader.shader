@@ -6,8 +6,8 @@ Shader "Hidden/musticide/UI/RichImageShader"
         [PerRendererData]_SecTex ("Sprite Texture 2", 2D) = "black" {}
         _Color ("Tint", Color) = (1,1,1,1)
 
-        // _TexBlendMode ("Texture Blend", Float) = 0
-        [KeywordEnum(Alpha, Add, Multiply, Overlay)] _TexBlendMode ("Blend Mode Test", Float) = 0
+        [HideInInspector]_TexBlendMode ("Texture Blend", Float) = 0
+        // [KeywordEnum(Alpha, Add, Multiply, Overlay)] _TexBlendMode ("Blend Mode Test", Float) = 0
 
         [HideInInspector]_StencilComp ("Stencil Comparison", Float) = 8
         [HideInInspector]_Stencil ("Stencil ID", Float) = 0
@@ -129,8 +129,10 @@ Shader "Hidden/musticide/UI/RichImageShader"
 
                 o.uv2 = input.uv;
 
+                o.uv2 -= 0.5f;
                 o.uv2 *= _SecTex_UserST.xy;
                 o.uv2 += _SecTex_UserST.zw;
+                o.uv2 += 0.5f;
 
                 // #ifdef _PRESERVE_SECTEX_ASPECT
                 // o.uv2 -= 0.5f;
