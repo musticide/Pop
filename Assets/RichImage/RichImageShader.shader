@@ -62,6 +62,7 @@ Shader "Hidden/musticide/UI/RichImageShader"
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 
             #pragma shader_feature_fragment _TEXBLENDMODE_ALPHA _TEXBLENDMODE_ADD _TEXBLENDMODE_MULTIPLY _TEXBLENDMODE_OVERLAY
+            #pragma shader_feature _CLAMP_SECTEX
 
             struct Attributes
             {
@@ -84,8 +85,11 @@ Shader "Hidden/musticide/UI/RichImageShader"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            float4 _MainTex_TexelSize;
             sampler2D _SecTex;
             float4 _SecTex_ST;
+            float4 _SecTex_TexelSize;
+            float4 _SecTex_UserST;
             fixed4 _Color;
             fixed4 _TextureSampleAdd;
             float4 _ClipRect;
@@ -101,6 +105,16 @@ Shader "Hidden/musticide/UI/RichImageShader"
                 2 * a * b;
             }
 
+            float MOD(float x, float y)
+            {
+                return x - y * floor(x / y);
+            }
+
+            float2 RemapRange(float2 val, float2 inMin, float2 inMax,float2 outMin,float2 outMax)
+            {
+                return (val - inMin) / (inMax - inMin) * (outMax - outMin) + outMin;
+            }
+
             Varyings vert(Attributes input)
             {
                 Varyings o;
@@ -111,7 +125,18 @@ Shader "Hidden/musticide/UI/RichImageShader"
 
                 o.uv = input.uv;
                 o.uv1 = TRANSFORM_TEX(input.uv, _MainTex);
-                o.uv2 = TRANSFORM_TEX(input.uv, _SecTex);
+                // o.uv2 = TRANSFORM_TEX(input.uv, _SecTex);
+                o.uv2 = input.uv;// * _SecTex_ST.xy + _SecTex_ST.zw;
+
+                o.uv2 *= _SecTex_UserST.xy;
+                o.uv2 += _SecTex_UserST.zw;
+
+                // o.uv2 *= _SecTex_ST.xy;
+                // o.uv2 += _SecTex_ST.zw;
+
+                // o.uv2.x *= _SecTex_ST.x;
+                // o.uv2 *= _SecTex_TexelSize.zw;
+                // o.uv2 *= _MainTex_TexelSize.zw;
 
                 o.color = input.color * _Color;
                 return o;
@@ -125,7 +150,20 @@ Shader "Hidden/musticide/UI/RichImageShader"
                 float2 mTexUV = input.uv1;
                 half4 mainTex = tex2D(_MainTex, mTexUV);
 
-                float2 sTexUV = input.uv2;
+                // float2 sTexUV = input.uv2 * _SecTex_UserST.xy + _SecTex_UserST.zw;
+                // float2 sTexUV = input.uv2 * _SecTex_ST.xy + _SecTex_ST.zw;
+                float2 sTexUV = frac(input.uv2);// * _SecTex_UserST.xy + _SecTex_UserST.zw;
+    
+                sTexUV *= _SecTex_ST.xy;
+                sTexUV += _SecTex_ST.zw;
+
+                // float2 maxUV = _SecTex_ST.xy + _SecTex_ST.zw;
+                // float2 minUV = _SecTex_ST.zw;
+                // sTexUV.x = MOD(sTexUV.x, maxUV.x);
+                // sTexUV.y = MOD(sTexUV.y, maxUV.y);
+
+                // sTexUV = RemapRange(frac(sTexUV), 0,1, minUV, maxUV);
+
                 half4 secTex = tex2D(_SecTex, sTexUV);
 
                 half4 mixTex = lerp(mainTex, secTex, secTex.a);//default

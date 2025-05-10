@@ -27,10 +27,7 @@ public class RichImage : UnityEngine.UI.Image
     {
     }
 
-    [SerializeField]
-    private Sprite
-        m_MainSprite,
-        m_SecondarySprite;
+    [SerializeField] private Sprite m_MainSprite;
 
     public Sprite MainSprite
     {
@@ -41,16 +38,6 @@ public class RichImage : UnityEngine.UI.Image
             OnMainSpriteChanged(value);
         }
 
-    }
-
-    public Sprite SecondarySprite
-    {
-        get => m_SecondarySprite;
-        set
-        {
-            m_SecondarySprite = value;
-            OnSecondarySpriteChanged(value);
-        }
     }
 
     private void OnMainSpriteChanged(Sprite a_MainSprite)
@@ -65,16 +52,51 @@ public class RichImage : UnityEngine.UI.Image
         material.SetTextureScale("_MainTex", scale);
     }
 
+    [SerializeField] private Sprite m_SecondarySprite;
+    public Sprite SecondarySprite
+    {
+        get => m_SecondarySprite;
+        set
+        {
+            m_SecondarySprite = value;
+            OnSecondarySpriteChanged(value);
+        }
+    }
+
     private void OnSecondarySpriteChanged(Sprite a_SecondarySprite)
     {
         if (a_SecondarySprite == null) return;
         material.SetTexture("_SecTex", a_SecondarySprite.texture);
+
         Rect texRect = a_SecondarySprite.textureRect;
+
         Vector2 offset = new Vector2(texRect.x / a_SecondarySprite.texture.width, texRect.y / a_SecondarySprite.texture.height);
+        // offset.x += a_ScaleOffset.z;
+        // offset.y += a_ScaleOffset.w;
+
         Vector2 scale = new Vector2(texRect.width / a_SecondarySprite.texture.width, texRect.height / a_SecondarySprite.texture.height);
+        // scale.x *= a_ScaleOffset.x;
+        // scale.y *= a_ScaleOffset.y;
 
         material.SetTextureOffset("_SecTex", offset);
         material.SetTextureScale("_SecTex", scale);
+    }
+
+    [SerializeField] private Vector4 m_SecondarySpriteUserScaleOffset = new Vector4(1, 1, 0, 0);
+    public Vector4 SecondarySpriteScaleOffset
+    {
+        get => m_SecondarySpriteUserScaleOffset;
+        set
+        {
+            m_SecondarySpriteUserScaleOffset = value;
+            // OnSecondarySpriteChanged(SecondarySprite, value);
+            OnSecondarySpriteUserScaleOffsetChanged(value);
+        }
+    }
+
+    private void OnSecondarySpriteUserScaleOffsetChanged(Vector4 value)
+    {
+        material.SetVector("_SecTex_UserST", value);
     }
 
     [System.Serializable]
@@ -183,6 +205,7 @@ public class RichImage : UnityEngine.UI.Image
         OnMainSpriteChanged(m_MainSprite);
         OnSecondarySpriteChanged(m_SecondarySprite);
         OnTexBlendModeChanged(m_TexBlendMode);
+        OnSecondarySpriteUserScaleOffsetChanged(m_SecondarySpriteUserScaleOffset);
     }
 
 #if UNITY_EDITOR

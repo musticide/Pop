@@ -16,6 +16,7 @@ public class RichImageEditor : UnityEditor.Editor
     SerializedProperty
         m_MainSprite,
         m_SecondarySprite,
+        m_SecondarySpriteUserScaleOffset,
         m_TexBlendMode,
         m_CustomMesh;
 
@@ -24,9 +25,13 @@ public class RichImageEditor : UnityEditor.Editor
     {
         m_MainSprite = serializedObject.FindProperty("m_MainSprite");
         m_SecondarySprite = serializedObject.FindProperty("m_SecondarySprite");
+        m_SecondarySpriteUserScaleOffset = serializedObject.FindProperty("m_SecondarySpriteUserScaleOffset");
+
         m_CustomMesh = serializedObject.FindProperty("m_CustomMesh");
         m_Color = serializedObject.FindProperty("m_Color");
-        m_Color = serializedObject.FindProperty("m_Material");
+
+        m_Material = serializedObject.FindProperty("m_Material");
+
         m_RaycastTarget = serializedObject.FindProperty("m_RaycastTarget");
         m_RayCastPadding = serializedObject.FindProperty("m_RaycastPadding");
         m_Maskable = serializedObject.FindProperty("m_Maskable");
@@ -40,12 +45,18 @@ public class RichImageEditor : UnityEditor.Editor
 
         EditorGUILayout.PropertyField(m_MainSprite);
 
-        EditorGUILayout.PropertyField(m_SecondarySprite);
         EditorGUILayout.PropertyField(m_TexBlendMode);
+        EditorGUILayout.PropertyField(m_SecondarySprite);
+        DrawScaleOffset(m_SecondarySpriteUserScaleOffset);
+
+        EditorGUILayout.Separator();
 
         EditorGUILayout.PropertyField(m_CustomMesh);
         EditorGUILayout.PropertyField(m_Color);
         // EditorGUILayout.PropertyField(m_Type);
+        // EditorGUILayout.Vector4Field("", m_SecondarySpriteUserScaleOffset.vector4Value);
+
+        EditorGUILayout.PropertyField(m_Material);
 
         EditorGUILayout.PropertyField(m_RaycastTarget);
         EditorGUILayout.PropertyField(m_RayCastPadding);
@@ -57,5 +68,19 @@ public class RichImageEditor : UnityEditor.Editor
             richImage.SetToNativeSize();
         }
         serializedObject.ApplyModifiedProperties();
+    }
+
+    void DrawScaleOffset(SerializedProperty vector4Prop)
+    {
+        Vector4 vec = vector4Prop.vector4Value;
+        Vector2 scale = new Vector2(vec.x, vec.y);
+        Vector2 offset = new Vector2(vec.z, vec.w);
+
+        EditorGUI.indentLevel++;
+        scale = EditorGUILayout.Vector2Field("Scale", scale);
+        offset = EditorGUILayout.Vector2Field("Offset", offset);
+        EditorGUI.indentLevel--;
+
+        vector4Prop.vector4Value = new Vector4(scale.x, scale.y, offset.x, offset.y);
     }
 }
