@@ -71,12 +71,8 @@ public class RichImage : UnityEngine.UI.Image
         Rect texRect = a_SecondarySprite.textureRect;
 
         Vector2 offset = new Vector2(texRect.x / a_SecondarySprite.texture.width, texRect.y / a_SecondarySprite.texture.height);
-        // offset.x += a_ScaleOffset.z;
-        // offset.y += a_ScaleOffset.w;
 
         Vector2 scale = new Vector2(texRect.width / a_SecondarySprite.texture.width, texRect.height / a_SecondarySprite.texture.height);
-        // scale.x *= a_ScaleOffset.x;
-        // scale.y *= a_ScaleOffset.y;
 
         material.SetTextureOffset("_SecTex", offset);
         material.SetTextureScale("_SecTex", scale);
@@ -89,7 +85,6 @@ public class RichImage : UnityEngine.UI.Image
         set
         {
             m_SecondarySpriteUserScaleOffset = value;
-            // OnSecondarySpriteChanged(SecondarySprite, value);
             OnSecondarySpriteUserScaleOffsetChanged(value);
         }
     }
@@ -97,6 +92,30 @@ public class RichImage : UnityEngine.UI.Image
     private void OnSecondarySpriteUserScaleOffsetChanged(Vector4 value)
     {
         material.SetVector("_SecTex_UserST", value);
+    }
+
+    [SerializeField] bool m_TileSecondarySprite = false;
+    public bool TileSecondarySprite
+    {
+        get => m_TileSecondarySprite;
+        set
+        {
+            m_TileSecondarySprite = value;
+            OnTileSecondarySpriteChanged(value);
+        }
+    }
+
+    void OnTileSecondarySpriteChanged(bool value)
+    {
+        if (value)
+        {
+            material.EnableKeyword("_TILE_SECTEX");
+        }
+        else
+        {
+            material.DisableKeyword("_TILE_SECTEX");
+        }
+
     }
 
     [System.Serializable]
@@ -206,6 +225,7 @@ public class RichImage : UnityEngine.UI.Image
         OnSecondarySpriteChanged(m_SecondarySprite);
         OnTexBlendModeChanged(m_TexBlendMode);
         OnSecondarySpriteUserScaleOffsetChanged(m_SecondarySpriteUserScaleOffset);
+        OnTileSecondarySpriteChanged(m_TileSecondarySprite);
     }
 
 #if UNITY_EDITOR

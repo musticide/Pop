@@ -18,6 +18,7 @@ public class RichImageEditor : UnityEditor.Editor
         m_SecondarySprite,
         m_SecondarySpriteUserScaleOffset,
         m_TexBlendMode,
+        m_TileSecondarySprite,
         m_CustomMesh;
 
 
@@ -26,6 +27,7 @@ public class RichImageEditor : UnityEditor.Editor
         m_MainSprite = serializedObject.FindProperty("m_MainSprite");
         m_SecondarySprite = serializedObject.FindProperty("m_SecondarySprite");
         m_SecondarySpriteUserScaleOffset = serializedObject.FindProperty("m_SecondarySpriteUserScaleOffset");
+        m_TileSecondarySprite = serializedObject.FindProperty("m_TileSecondarySprite");
 
         m_CustomMesh = serializedObject.FindProperty("m_CustomMesh");
         m_Color = serializedObject.FindProperty("m_Color");
@@ -48,13 +50,14 @@ public class RichImageEditor : UnityEditor.Editor
         EditorGUILayout.PropertyField(m_TexBlendMode);
         EditorGUILayout.PropertyField(m_SecondarySprite);
         DrawScaleOffset(m_SecondarySpriteUserScaleOffset);
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(m_TileSecondarySprite, new GUIContent("Tiling"));
+        EditorGUI.indentLevel--;
 
         EditorGUILayout.Separator();
 
         EditorGUILayout.PropertyField(m_CustomMesh);
         EditorGUILayout.PropertyField(m_Color);
-        // EditorGUILayout.PropertyField(m_Type);
-        // EditorGUILayout.Vector4Field("", m_SecondarySpriteUserScaleOffset.vector4Value);
 
         EditorGUILayout.PropertyField(m_Material);
 

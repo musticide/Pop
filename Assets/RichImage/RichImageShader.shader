@@ -62,7 +62,8 @@ Shader "Hidden/musticide/UI/RichImageShader"
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 
             #pragma shader_feature_fragment _TEXBLENDMODE_ALPHA _TEXBLENDMODE_ADD _TEXBLENDMODE_MULTIPLY _TEXBLENDMODE_OVERLAY
-            #pragma shader_feature _CLAMP_SECTEX
+            #pragma shader_feature _TILE_SECTEX
+            #pragma shader_feature _PRESERVE_SECTEX_ASPECT
 
             struct Attributes
             {
@@ -125,18 +126,20 @@ Shader "Hidden/musticide/UI/RichImageShader"
 
                 o.uv = input.uv;
                 o.uv1 = TRANSFORM_TEX(input.uv, _MainTex);
-                // o.uv2 = TRANSFORM_TEX(input.uv, _SecTex);
-                o.uv2 = input.uv;// * _SecTex_ST.xy + _SecTex_ST.zw;
+
+                o.uv2 = input.uv;
 
                 o.uv2 *= _SecTex_UserST.xy;
                 o.uv2 += _SecTex_UserST.zw;
 
-                // o.uv2 *= _SecTex_ST.xy;
-                // o.uv2 += _SecTex_ST.zw;
-
-                // o.uv2.x *= _SecTex_ST.x;
-                // o.uv2 *= _SecTex_TexelSize.zw;
-                // o.uv2 *= _MainTex_TexelSize.zw;
+                // #ifdef _PRESERVE_SECTEX_ASPECT
+                // o.uv2 -= 0.5f;
+                // if(_SecTex_TexelSize.x > _SecTex_TexelSize.y)
+                //     o.uv2.y *= _SecTex_TexelSize.x / _SecTex_TexelSize.y;
+                // else
+                //     o.uv2.x *= _SecTex_TexelSize.y / _SecTex_TexelSize.x;
+                // o.uv2 += 0.5f;
+                // #endif
 
                 o.color = input.color * _Color;
                 return o;
@@ -150,23 +153,21 @@ Shader "Hidden/musticide/UI/RichImageShader"
                 float2 mTexUV = input.uv1;
                 half4 mainTex = tex2D(_MainTex, mTexUV);
 
-                // float2 sTexUV = input.uv2 * _SecTex_UserST.xy + _SecTex_UserST.zw;
-                // float2 sTexUV = input.uv2 * _SecTex_ST.xy + _SecTex_ST.zw;
-                float2 sTexUV = frac(input.uv2);// * _SecTex_UserST.xy + _SecTex_UserST.zw;
+                float2 sTexUV = input.uv2;// * _SecTex_UserST.xy + _SecTex_UserST.zw;
+
+                #ifdef _TILE_SECTEX
+                    sTexUV = frac(sTexUV);
+                #else
+                    sTexUV = clamp(sTexUV, 0, 1);
+                #endif
     
                 sTexUV *= _SecTex_ST.xy;
                 sTexUV += _SecTex_ST.zw;
 
-                // float2 maxUV = _SecTex_ST.xy + _SecTex_ST.zw;
-                // float2 minUV = _SecTex_ST.zw;
-                // sTexUV.x = MOD(sTexUV.x, maxUV.x);
-                // sTexUV.y = MOD(sTexUV.y, maxUV.y);
-
-                // sTexUV = RemapRange(frac(sTexUV), 0,1, minUV, maxUV);
-
                 half4 secTex = tex2D(_SecTex, sTexUV);
 
                 half4 mixTex = lerp(mainTex, secTex, secTex.a);//default
+                mixTex.a = max(mainTex.a, secTex.a);
 
                 #ifdef _TEXBLENDMODE_ALPHA
                 mixTex = mixTex;
