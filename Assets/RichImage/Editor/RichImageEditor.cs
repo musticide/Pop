@@ -10,8 +10,8 @@ public class RichImageEditor : UnityEditor.Editor
         m_RaycastTarget,
         m_RayCastPadding,
         m_Maskable,
-        m_Material,
-        m_Type;
+        m_Material;
+    // m_Type;
 
     SerializedProperty
         m_MainSprite,
@@ -37,7 +37,7 @@ public class RichImageEditor : UnityEditor.Editor
         m_RaycastTarget = serializedObject.FindProperty("m_RaycastTarget");
         m_RayCastPadding = serializedObject.FindProperty("m_RaycastPadding");
         m_Maskable = serializedObject.FindProperty("m_Maskable");
-        m_Maskable = serializedObject.FindProperty("m_Type");
+        // m_Maskable = serializedObject.FindProperty("m_Type");
         m_TexBlendMode = serializedObject.FindProperty("m_TexBlendMode");
 
     }
