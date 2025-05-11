@@ -1,4 +1,4 @@
-Shader "Hidden/musticide/UI/RichImageShader"
+Shader "Hidden/musticide/UI/ImagePlus Shader"
 {
     Properties
     {

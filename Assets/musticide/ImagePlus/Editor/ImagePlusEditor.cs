@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
 
-[CustomEditor(typeof(RichImage))]
-public class RichImageEditor : UnityEditor.Editor
+[CustomEditor(typeof(ImagePlus))]
+public class ImagePlusEditor : UnityEditor.Editor
 {
     SerializedProperty
         m_Color,
@@ -78,8 +78,8 @@ public class RichImageEditor : UnityEditor.Editor
 
         if (GUILayout.Button("Set Native Size"))
         {
-            RichImage richImage = (RichImage)target;
-            richImage.SetToNativeSize();
+            ImagePlus imagePlus = (ImagePlus)target;
+            imagePlus.SetToNativeSize();
         }
         serializedObject.ApplyModifiedProperties();
     }

@@ -4,9 +4,9 @@ using UnityEditor;
 using System;
 
 [ExecuteInEditMode]
-public class RichImage : UnityEngine.UI.Image
+public class ImagePlus : UnityEngine.UI.Image
 {
-    private static Shader m_RichImageShader;
+    private static Shader m_ImagePlusShader;
 
     [SerializeField] private Mesh m_CustomMesh;
 
@@ -290,7 +290,7 @@ public class RichImage : UnityEngine.UI.Image
             }
             else
             {
-                // return new Material(m_RichImageShader);
+                // return new Material(m_ImagePlusShader);
                 return shaderMaterial;
             }
         }
@@ -303,7 +303,7 @@ public class RichImage : UnityEngine.UI.Image
             }
             else
             {
-                m_Material = new Material(m_RichImageShader);
+                m_Material = new Material(m_ImagePlusShader);
             } */
         }
     }
@@ -346,23 +346,23 @@ public class RichImage : UnityEngine.UI.Image
 
     void EnsureRichImageShader()
     {
-        if (m_RichImageShader == null)
+        if (m_ImagePlusShader == null)
         {
-            m_RichImageShader = Shader.Find("Hidden/musticide/UI/RichImageShader");
-            if (m_RichImageShader == null)
+            m_ImagePlusShader = Shader.Find("Hidden/musticide/UI/ImagePlus Shader");
+            if (m_ImagePlusShader == null)
             {
-                Debug.LogError("RichImage shader not found!");
+                Debug.LogError("ImagePlus shader not found!");
                 return;
             }
         }
         if (m_Material == null)
         {
-            shaderMaterial = new Material(m_RichImageShader);
+            shaderMaterial = new Material(m_ImagePlusShader);
         }
 
-        // if (material == null || material.shader != m_RichImageShader)
+        // if (material == null || material.shader != m_ImagePlusShader)
         // {
-        //     material = new Material(m_RichImageShader);
+        //     material = new Material(m_ImagePlusShader);
         // }
     }
 }
