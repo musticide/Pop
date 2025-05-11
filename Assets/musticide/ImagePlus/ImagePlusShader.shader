@@ -4,7 +4,7 @@ Shader "Hidden/musticide/UI/ImagePlus Shader"
     {
         [PerRendererData]_MainTex ("Sprite Texture", 2D) = "white" {}
         [PerRendererData]_SecTex ("Sprite Texture 2", 2D) = "black" {}
-        _Color ("Tint", Color) = (1,1,1,1)
+        [HideInInspector]_Color ("Tint", Color) = (1,1,1,1)
 
         [HideInInspector]_TexBlendMode ("Texture Blend", Float) = 0
 
@@ -68,7 +68,9 @@ Shader "Hidden/musticide/UI/ImagePlus Shader"
 
             #pragma shader_feature_fragment _TEXBLENDMODE_ALPHA _TEXBLENDMODE_ADD _TEXBLENDMODE_MULTIPLY _TEXBLENDMODE_OVERLAY
             #pragma shader_feature _TILE_SECTEX
-            #pragma shader_feature_fragment _GLEAM
+            #pragma shader_feature _CLIP_SECTEX_TO_BASE
+
+            #pragma multi_compile_fragment _GLEAM
 
             struct Attributes
             {
@@ -188,7 +190,12 @@ Shader "Hidden/musticide/UI/ImagePlus Shader"
                 half4 secTex = tex2D(_SecTex, sTexUV);
 
                 half4 mixTex = lerp(mainTex, secTex, secTex.a);//default
+
+                #ifdef _CLIP_SECTEX_TO_BASE
+                mixTex.a = mainTex.a;
+                #else
                 mixTex.a = max(mainTex.a, secTex.a);
+                #endif
 
                 #ifdef _TEXBLENDMODE_ALPHA
                 mixTex = mixTex;

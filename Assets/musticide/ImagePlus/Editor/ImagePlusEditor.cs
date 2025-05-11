@@ -21,6 +21,7 @@ namespace Musticide.UI
             m_SecondarySpriteUserScaleOffset,
             m_TexBlendMode,
             m_TileSecondarySprite,
+            m_ClipSecTexToBase,
             m_CustomMesh,
             m_IsGleam,
             m_Gleam;
@@ -30,16 +31,20 @@ namespace Musticide.UI
         public void OnEnable()
         {
             m_MainSprite = serializedObject.FindProperty("m_MainSprite");
+
+            m_TexBlendMode = serializedObject.FindProperty("m_TexBlendMode");
+
             m_SecondarySprite = serializedObject.FindProperty("m_SecondarySprite");
             m_SecondarySpriteUserScaleOffset = serializedObject.FindProperty("m_SecondarySpriteUserScaleOffset");
             m_TileSecondarySprite = serializedObject.FindProperty("m_TileSecondarySprite");
+            m_ClipSecTexToBase = serializedObject.FindProperty("m_ClipSecTexToBase");
 
             m_CustomMesh = serializedObject.FindProperty("m_CustomMesh");
-            m_Color = serializedObject.FindProperty("m_Color");
 
             m_IsGleam = serializedObject.FindProperty("m_IsGleam");
             m_Gleam = serializedObject.FindProperty(("m_Gleam"));
 
+            m_Color = serializedObject.FindProperty("m_Color");
             m_Material = serializedObject.FindProperty("m_Material");
 
             m_RaycastTarget = serializedObject.FindProperty("m_RaycastTarget");
@@ -48,7 +53,6 @@ namespace Musticide.UI
             // m_Maskable = serializedObject.FindProperty("m_Maskable");
             // m_Maskable = serializedObject.FindProperty("m_Type");
 
-            m_TexBlendMode = serializedObject.FindProperty("m_TexBlendMode");
 
         }
         public override void OnInspectorGUI()
@@ -62,6 +66,7 @@ namespace Musticide.UI
             DrawScaleOffset(m_SecondarySpriteUserScaleOffset);
             EditorGUI.indentLevel++;
             EditorGUILayout.PropertyField(m_TileSecondarySprite, new GUIContent("Tiling"));
+            EditorGUILayout.PropertyField(m_ClipSecTexToBase, new GUIContent("Clip to Base"));
             EditorGUI.indentLevel--;
             EditorGUILayout.Separator();
 

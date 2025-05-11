@@ -141,6 +141,29 @@ namespace Musticide.UI
             }
         }
 
+        [SerializeField] private bool m_ClipSecTexToBase = false;
+        public bool ClipSecTexToBase
+        {
+            get => m_ClipSecTexToBase;
+            set
+            {
+                m_ClipSecTexToBase = value;
+                OnClipSecTexToBaseChanged(value);
+            }
+        }
+
+        private void OnClipSecTexToBaseChanged(bool value)
+        {
+            if (value)
+            {
+                material.EnableKeyword("_CLIP_SECTEX_TO_BASE");
+            }
+            else
+            {
+                material.DisableKeyword("_CLIP_SECTEX_TO_BASE");
+            }
+        }
+
         [SerializeField] bool m_IsGleam = false;
         public bool IsGleam
         {
@@ -267,6 +290,7 @@ namespace Musticide.UI
             OnTexBlendModeChanged(m_TexBlendMode);
             OnSecondarySpriteUserScaleOffsetChanged(m_SecondarySpriteUserScaleOffset);
             OnTileSecondarySpriteChanged(m_TileSecondarySprite);
+            OnClipSecTexToBaseChanged(m_ClipSecTexToBase);
 
             OnGleamChanged(m_Gleam);
             OnGleamActivated(m_IsGleam);
