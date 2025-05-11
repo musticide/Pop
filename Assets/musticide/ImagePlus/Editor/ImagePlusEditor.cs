@@ -26,6 +26,8 @@ namespace Musticide.UI
             m_IsGleam,
             m_Gleam;
 
+        SerializedProperty shaderFeatures;
+
 
 
         public void OnEnable()
@@ -49,6 +51,8 @@ namespace Musticide.UI
 
             m_RaycastTarget = serializedObject.FindProperty("m_RaycastTarget");
 
+            shaderFeatures = serializedObject.FindProperty("shaderFeatures");
+
             // m_RayCastPadding = serializedObject.FindProperty("m_RaycastPadding");
             // m_Maskable = serializedObject.FindProperty("m_Maskable");
             // m_Maskable = serializedObject.FindProperty("m_Type");
@@ -61,22 +65,28 @@ namespace Musticide.UI
 
             EditorGUILayout.PropertyField(m_MainSprite);
 
-            EditorGUILayout.PropertyField(m_TexBlendMode);
-            EditorGUILayout.PropertyField(m_SecondarySprite);
-            DrawScaleOffset(m_SecondarySpriteUserScaleOffset);
-            EditorGUI.indentLevel++;
-            EditorGUILayout.PropertyField(m_TileSecondarySprite, new GUIContent("Tiling"));
-            EditorGUILayout.PropertyField(m_ClipSecTexToBase, new GUIContent("Clip to Base"));
-            EditorGUI.indentLevel--;
-            EditorGUILayout.Separator();
+            if (shaderFeatures.boolValue == true)
+            {
+                EditorGUILayout.PropertyField(m_TexBlendMode);
+                EditorGUILayout.PropertyField(m_SecondarySprite);
+                DrawScaleOffset(m_SecondarySpriteUserScaleOffset);
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(m_TileSecondarySprite, new GUIContent("Tiling"));
+                EditorGUILayout.PropertyField(m_ClipSecTexToBase, new GUIContent("Clip to Base"));
+                EditorGUI.indentLevel--;
+                EditorGUILayout.Separator();
+            }
 
             EditorGUILayout.PropertyField(m_CustomMesh);
             EditorGUILayout.PropertyField(m_Color);
             EditorGUILayout.PropertyField(m_Material);
             EditorGUILayout.Separator();
 
-            m_IsGleam.boolValue = DrawGleam(m_Gleam, m_IsGleam.boolValue);
-            EditorGUILayout.Separator();
+            if (shaderFeatures.boolValue == true)
+            {
+                m_IsGleam.boolValue = DrawGleam(m_Gleam, m_IsGleam.boolValue);
+                EditorGUILayout.Separator();
+            }
 
 
             EditorGUILayout.PropertyField(m_RaycastTarget);

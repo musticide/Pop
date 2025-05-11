@@ -284,6 +284,8 @@ namespace Musticide.UI
             base.OnValidate();
             EnsureRichImageShader();
 
+            OnMaterialChanged(m_Material);
+
             // if (MainSprite != m_MainSprite)
             OnMainSpriteChanged(m_MainSprite);
             OnSecondarySpriteChanged(m_SecondarySprite);
@@ -305,6 +307,7 @@ namespace Musticide.UI
 #endif
 
         Material shaderMaterial;// = new Material(Shader.Find("Hidden/musticide/UI/RichImageShader"));
+        [SerializeField] private bool shaderFeatures;
 
         public override Material material
         {
@@ -323,6 +326,7 @@ namespace Musticide.UI
             set
             {
                 m_Material = value;
+                OnMaterialChanged(value);
                 /* if (value != null)
                 {
                     m_Material = value;
@@ -332,6 +336,14 @@ namespace Musticide.UI
                     m_Material = new Material(m_ImagePlusShader);
                 } */
             }
+        }
+
+        private void OnMaterialChanged(Material value)
+        {
+            if (value.shader != m_ImagePlusShader)
+                shaderFeatures = false;
+            else
+                shaderFeatures = true;
         }
 
         public void SetToNativeSize()
@@ -384,6 +396,7 @@ namespace Musticide.UI
             if (m_Material == null)
             {
                 shaderMaterial = new Material(m_ImagePlusShader);
+                m_Material = shaderMaterial;
             }
 
             // if (material == null || material.shader != m_ImagePlusShader)
