@@ -70,7 +70,7 @@ Shader "Hidden/musticide/UI/ImagePlus Shader"
             #pragma shader_feature _TILE_SECTEX
             #pragma shader_feature _CLIP_SECTEX_TO_BASE
 
-            #pragma multi_compile_fragment _GLEAM
+            #pragma multi_compile_fragment _ _GLEAM
 
             struct Attributes
             {
