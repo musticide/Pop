@@ -325,25 +325,29 @@ namespace Musticide.UI
             }
             set
             {
-                m_Material = value;
-                OnMaterialChanged(value);
-                /* if (value != null)
+                // m_Material = value;
+                // OnMaterialChanged(value);
+                if (value != null)
                 {
                     m_Material = value;
                 }
                 else
                 {
                     m_Material = new Material(m_ImagePlusShader);
-                } */
+                }
+
+                shaderFeatures = value.shader == m_ImagePlusShader;
             }
         }
 
         private void OnMaterialChanged(Material value)
         {
-            if (value.shader != m_ImagePlusShader)
-                shaderFeatures = false;
-            else
+            if (value == null)
+            {
                 shaderFeatures = true;
+                return;
+            }
+            shaderFeatures = value.shader == m_ImagePlusShader;
         }
 
         public void SetToNativeSize()
@@ -396,7 +400,7 @@ namespace Musticide.UI
             if (m_Material == null)
             {
                 shaderMaterial = new Material(m_ImagePlusShader);
-                m_Material = shaderMaterial;
+                // m_Material = shaderMaterial;
             }
 
             // if (material == null || material.shader != m_ImagePlusShader)
