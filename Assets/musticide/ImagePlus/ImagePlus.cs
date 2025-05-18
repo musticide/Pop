@@ -45,6 +45,7 @@ namespace Musticide.UI
         private void OnMainSpriteChanged(Sprite a_MainSprite)
         {
             if (a_MainSprite == null) return;
+            if (material == null) return;
             material.SetTexture("_MainTex", a_MainSprite.texture);
             Rect texRect = a_MainSprite.textureRect;
             Vector2 offset = new Vector2(texRect.x / a_MainSprite.texture.width, texRect.y / a_MainSprite.texture.height);
@@ -68,6 +69,7 @@ namespace Musticide.UI
         private void OnSecondarySpriteChanged(Sprite a_SecondarySprite)
         {
             if (a_SecondarySprite == null) return;
+            if (material == null) return;
             material.SetTexture("_SecTex", a_SecondarySprite.texture);
 
             Rect texRect = a_SecondarySprite.textureRect;
@@ -109,6 +111,7 @@ namespace Musticide.UI
 
         void OnTileSecondarySpriteChanged(bool value)
         {
+            if (material == null) return;
             if (value)
             {
                 material.EnableKeyword("_TILE_SECTEX");
@@ -154,6 +157,7 @@ namespace Musticide.UI
 
         private void OnClipSecTexToBaseChanged(bool value)
         {
+            if (material == null) return;
             if (value)
             {
                 material.EnableKeyword("_CLIP_SECTEX_TO_BASE");
@@ -177,6 +181,7 @@ namespace Musticide.UI
 
         private void OnGleamActivated(bool value)
         {
+            if (material == null) return;
             if (value)
             {
                 material.EnableKeyword("_GLEAM");
@@ -200,11 +205,13 @@ namespace Musticide.UI
 
         private void OnGleamChanged(Vector4 value)
         {
+            if (material == null) return;
             material.SetVector("_Gleam", value);
         }
 
         private void OnTexBlendModeChanged(BlendMode value)
         {
+            if (material == null) return;
             switch (value)
             {
                 case BlendMode.Alpha:
@@ -279,9 +286,9 @@ namespace Musticide.UI
             }
         }
 
-        protected override void OnValidate()
+        public void UpdateParams()
         {
-            base.OnValidate();
+#if UNITY_EDITOR
             EnsureRichImageShader();
 
             OnMaterialChanged(m_Material);
@@ -296,6 +303,13 @@ namespace Musticide.UI
 
             OnGleamChanged(m_Gleam);
             OnGleamActivated(m_IsGleam);
+#endif
+        }
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            UpdateParams();
         }
 
 #if UNITY_EDITOR
@@ -306,7 +320,7 @@ namespace Musticide.UI
         }
 #endif
 
-        Material shaderMaterial;// = new Material(Shader.Find("Hidden/musticide/UI/RichImageShader"));
+        Material shaderMaterial;
         [SerializeField] private bool shaderFeatures;
 
         public override Material material
@@ -319,24 +333,30 @@ namespace Musticide.UI
                 }
                 else
                 {
-                    // return new Material(m_ImagePlusShader);
                     return shaderMaterial;
                 }
             }
             set
             {
-                // m_Material = value;
-                // OnMaterialChanged(value);
-                if (value != null)
-                {
-                    m_Material = value;
-                }
-                else
-                {
-                    m_Material = new Material(m_ImagePlusShader);
-                }
+                m_Material = value;
+                shaderFeatures = value != null && value.shader == m_ImagePlusShader;
+            }
+        }
 
-                shaderFeatures = value.shader == m_ImagePlusShader;
+        void EnsureRichImageShader()
+        {
+            if (m_ImagePlusShader == null)
+            {
+                m_ImagePlusShader = Shader.Find("Hidden/musticide/UI/ImagePlus Shader");
+                if (m_ImagePlusShader == null)
+                {
+                    Debug.LogError("ImagePlus shader not found!");
+                    return;
+                }
+            }
+            if (m_Material == null)
+            {
+                shaderMaterial = new Material(m_ImagePlusShader);
             }
         }
 
@@ -364,49 +384,6 @@ namespace Musticide.UI
             {
                 Debug.LogWarning("MainSprite is null. Cannot set native size.");
             }
-        }
-
-        public void PreserveAspectRatio()
-        {
-            if (MainSprite != null)
-            {
-                Vector2 size = MainSprite.rect.size;
-                if (size.x >= size.y)
-                {
-                    rectTransform.localScale = Vector3.one * rectTransform.localScale.x;
-                    // rectTransform.localScale.y = (1 ,size.x /size.y, 1);
-                }
-                else
-                {
-                    rectTransform.localScale = Vector3.one * rectTransform.localScale.x;
-                    // rectTransform.localScale.y *= size.x /size.y;
-
-                }
-                // float aspectRatio = 
-            }
-        }
-
-        void EnsureRichImageShader()
-        {
-            if (m_ImagePlusShader == null)
-            {
-                m_ImagePlusShader = Shader.Find("Hidden/musticide/UI/ImagePlus Shader");
-                if (m_ImagePlusShader == null)
-                {
-                    Debug.LogError("ImagePlus shader not found!");
-                    return;
-                }
-            }
-            if (m_Material == null)
-            {
-                shaderMaterial = new Material(m_ImagePlusShader);
-                // m_Material = shaderMaterial;
-            }
-
-            // if (material == null || material.shader != m_ImagePlusShader)
-            // {
-            //     material = new Material(m_ImagePlusShader);
-            // }
         }
     }
 }
