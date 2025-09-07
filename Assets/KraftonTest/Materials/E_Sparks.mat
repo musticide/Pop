@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: E_Sparks
-  m_Shader: {fileID: 4800000, guid: 7902a31719e909e4f98e35da8ac3c2b0, type: 3}
+  m_Shader: {fileID: 4800000, guid: 4f81862fabb407b49bef0cc31cfad41a, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -27,7 +27,9 @@ Material:
         m_Texture: {fileID: 2800000, guid: 08900528d9b0a824fb36dba8ab6d3cdd, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Ints: []
+    m_Ints:
+    - _Dst: 1
+    - _Src: 5
     m_Floats: []
     m_Colors:
     - _Range: {r: 0, g: 1, b: 0, a: 1}
